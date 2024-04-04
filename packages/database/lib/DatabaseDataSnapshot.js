@@ -64,6 +64,7 @@ export default class DatabaseDataSnapshot {
     return new DatabaseDataSnapshot(childRef, {
       value,
       key: childRef.key,
+      priority: childRef.getPriority(),
       exists: value !== null,
       childKeys: isObject(value) ? Object.keys(value) : [],
     });
