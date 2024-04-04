@@ -162,6 +162,26 @@ describe('database issues', function () {
       const snapshot = await ref.once('value');
       snapshot.val().should.eql(LONG);
     });
+    it.only('#7719 forEach returns a list of snapshots with priority', async function () {
+      const ref = firebase.database().ref(TEST_PATH).child('unorderedList');
+
+      await ref.set({
+        a: { '.value': 3, '.priority': 5 },
+        b: { '.value': 1, '.priority': 5 },
+        c: { '.value': 2, '.priority': 5 },
+      });
+
+      const snapshot = await ref.orderByValue().once('value');
+      const expected = ['b', 'c', 'a'];
+
+      snapshot.forEach((childSnap, i) => {
+        childSnap.val().should.equal(i + 1);
+        childSnap.key.should.equal(expected[i]);
+        childSnap.exportVal().should.have.property('.value');
+        childSnap.exportVal().should.have.property('.priority');
+        should.equal(childSnap.getPriority(), 5);
+      });
+    });
   });
 
   describe('modular', function () {
